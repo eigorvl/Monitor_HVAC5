@@ -4,6 +4,7 @@
 
 import streamlit as st
 from modules import module_assets
+from modules import module_udp
 
 def draw_hvac(data):
     col_left, col_right = st.columns([1, 2])
@@ -51,7 +52,7 @@ def draw_hvac(data):
             
             if st.button("▶ Пуск",key="btn_start", type="secondary", use_container_width=True):
                 st.session_state.running = True
-                send_udp({
+                module_udp.send_udp({
                     "temp_setpoint": temp_setpoint,
                     "mode": mode
                 })
@@ -73,7 +74,7 @@ def draw_hvac(data):
             
         with col_btn2:
             if st.button("⏹ Стоп", key="btn_stop",type="secondary", use_container_width=True):
-                send_udp({
+                module_udp.send_udp({
                     "temp_setpoint": temp_setpoint,
                     "mode": mode
                 })
