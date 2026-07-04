@@ -34,11 +34,11 @@ def img_to_base64(path):
     with open(path, "rb") as f:
         return base64.b64encode(f.read()).decode()
 
-airduct = img_to_base64("assets/airduct.png")
-fan_on_base64  = img_to_base64("assets/Fan_Alarm.png")
-fan_off_base64 = img_to_base64("assets/fan_normal.png")
-fan_300x300_base64 = img_to_base64("assets/fan_300x300.png")
-filter_pic = img_to_base64("assets/filter_14x46.png")
+##airduct = img_to_base64("assets/airduct_HVAC5.png")
+##fan_on_base64  = img_to_base64("assets/Fan_Alarm.png")
+##fan_off_base64 = img_to_base64("assets/fan_normal.png")
+##fan_300x300_base64 = img_to_base64("assets/fan_300x300.png")
+#filter_pic = img_to_base64("assets/filter_14x46.png")
 
 #data_queue = queue.Queue()
 
@@ -51,7 +51,10 @@ if "queue" not in st.session_state:
 
 data_queue = st.session_state.queue
 
-
+######################################################
+# Слушаем порт
+# полученные данные кладем в очередь
+######################################################
 def udp_listener():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.bind(("localhost", 9999))
@@ -62,9 +65,9 @@ def udp_listener():
             raw, _ = sock.recvfrom(1024)
             data = json.loads(raw.decode())
             #data["time"] = time.strftime("%H:%M:%S")
-            data["time"] = pd.Timestamp.now()
+            data["time"] = pd.Timestamp.now()  # добавить в полученные данные поле "time"
 
-            data_queue.put(data)  # ✅ только сюда
+            data_queue.put(data)
             print("RECV:", data)
 
         except socket.timeout:
@@ -114,7 +117,7 @@ conn.commit()
     
 ########################################################################
 # init
-### init
+########################################################################
 if "data" not in st.session_state:
     st.session_state.data = None
 if "history" not in st.session_state:
@@ -134,7 +137,7 @@ if "active_alarms" not in st.session_state:
 ##if "history" not in st.session_state:
 ##    st.session_state.history = []
 
-# 👉 ЗАПУСК ПОТОКА ЗДЕСЬ
+#ЗАПУСК ПОТОКА
 if "started" not in st.session_state:
     threading.Thread(target=udp_listener, daemon=True).start()
     st.session_state.started = True
