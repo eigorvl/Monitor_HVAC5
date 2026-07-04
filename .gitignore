@@ -9,6 +9,9 @@ hvac.db
 # C extensions
 *.so
 
+# Image
+
+
 # Distribution / packaging
 .Python
 build/
