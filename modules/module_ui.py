@@ -102,20 +102,19 @@ def draw_hvac(data):
             T3 = round(data.get("T3", 22.0))
             T4 = round(data.get("T4", 22.0))
             T5 = data.get("T5", 18.0)
-            fan = data.get("fan", 0)
-            fan = 1
-            fan_n1 = 1
-            fan_B1 = 1
-            TEN = 1
+            fan_n1 = data.get("n1", 0)
+            fan_B1 = data.get("B1", 0)
+            TEN = data.get("DO", 0) & 0x01
             Y3 = data.get("TEN", 10)
             Y4 = data.get("air_bypass", 20)
-            nB_filter = 1
-            Y1 = 1         # клапан подачи воздуха
-            Y2 = 1         # клапан вытяжной
-            Y4_Alarm = 0   # вария клапана Y4 air_bypass
-            Alarm_General = 1 # общая авария
-            fan_n1_Alarm = 0  # Авария вентилятора 
-            fan_B1_Alarm = 0
+            nB_filter = data.get("DI", 0) & 0x04
+            Y1 = data.get("Y1", 0)         # клапан подачи воздуха
+            Y2 = data.get("Y2", 0)         # клапан вытяжной
+            
+            Alarm_General = data.get("Alarms", 0) & 0x01 # общая авария
+            fan_n1_Alarm = data.get("Alarms", 0) & 0x02   # Авария вентилятора 
+            fan_B1_Alarm = data.get("Alarms", 0) & 0x04 
+            Y4_Alarm = data.get("Alarms", 0) & 0x40    # вария клапана Y4 air_bypass
 
             fan_img = module_assets.fan_300x300_base64
             filter_img = module_assets.filter_Bad_pic_base64 if nB_filter else module_assets.filter_Ok_pic_base64
@@ -125,10 +124,13 @@ def draw_hvac(data):
 
             fan_n1_img = module_assets.fan_Alarm_base64 if fan_n1_Alarm else module_assets.fan_Norm_base64
             fan_B1_img = module_assets.fan_Alarm_base64 if fan_B1_Alarm else module_assets.fan_Norm_base64
+
+            Alarm_General_txt = "Ошибка !" if Alarm_General else "        "
+
             
             animation_n1 = "rotate 4s linear infinite" if fan_n1 else "none"
             animation_B1 = "rotate 4s linear infinite" if fan_B1 else "none"
-            clFan_ind = 'lime' if fan else 'green'
+
             clFan_n1_ind = 'lime' if fan_n1 else 'green'
             clFan_B1_ind = 'lime' if fan_B1 else 'green'
             clTEN_ind = 'lime' if TEN else 'green'
@@ -309,6 +311,17 @@ def draw_hvac(data):
                     background-color:{clTEN_ind};
                     border-radius:50%;
                 '></div>           
+                <!-- ОБЩАЯ ОШИБКА! -->
+                <div style='
+                    position: absolute;
+                    top: 10px;
+                    left: 380px;
+                    color: red;
+                    font-size: 20px;
+                    font-weight: bold;
+                '>
+                   {Alarm_General_txt} .
+                </div>        
             </div>
             <style>
             @keyframes rotate {{
