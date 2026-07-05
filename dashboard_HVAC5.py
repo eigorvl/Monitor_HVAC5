@@ -198,7 +198,7 @@ while not data_queue.empty():
 st.title("HVAC Monitor")
 
 
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["📊 Мнемосхема", "История", "📋 Таблица", "🌡 Графики", "Текущие Аварии", "🚨 Журнал Аварий"])
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["📊 Мнемосхема", "История", "📋 Таблица", "🌡 Графики", "Текущие Аварии", "🚨 Журнал Аварий", "Регистры"])
 
 # ---- Вкладка 1 ----
 with tab1:
@@ -425,7 +425,183 @@ with tab6:
     else:
         st.info("История аварий пуста")
 
-    
+#--------------------------------------------------------------------
+# ---- Вкладка xx: Regs ----
+with tab7:
+    # базовый график температур
+    print(df.dtypes)
+
+    # Пример: два массива по 128 значений (по 16×8) random
+    data_block_1 = np.random.randint(0, 65535, size=(8, 16))
+    data_block_2 = np.random.randint(0, 100, size=(8, 16))
+
+    # два массива по 128 значений (по 16×8) random
+    data_block_AO = np.random.randint(0, 65535, size=(1, 16))
+    data_block_AI = np.random.randint(0, 65535, size=(1, 16))
+            
+    #два массива по 128 значений (по 16×1) random
+    data_block_DI = np.random.randint(0, 1, size=(1, 16))
+    data_block_DO = np.random.randint(0, 1, size=(1, 16))
+    data_block_Alarm = np.random.randint(0, 1, size=(1, 16))
+
+    #data_block_1[0][:8] = [data.get(f"NET0{i}", 0) for i in range(8)]
+
+    for block in range(4):        # например, 4 блока NET0x ... NET3x
+        for i in range(16):        # по 8 значений в каждом блоке
+            key = f"R{block*16 + i}"
+            data_block_1[block][i] = data.get(key, 0)
+
+#       for block in range(2):        # например, 1 блок NET7x ... NET3x
+        for i in range(16):        # по 8 значений в каждом блоке
+            key = f"R{112 + i}"
+            data_block_1[7][i] = data.get(key, 0)
+
+
+    for block in range(8):
+        key = f"C{block}"
+        for i in range(16):
+            data_block_2[block][i] = 1 if (data.get(key, 0) & (1 << i)) > 0  else 0
+
+    key = "DI"
+    for i in range(16):
+        data_block_DI[0][i] = 1 if (data.get(key, 0) & (1 << i)) > 0  else 0                   
+
+    key = "DO"
+    for i in range(16):
+        data_block_DO[0][i] = 1 if (data.get(key, 0) & (1 << i)) > 0  else 0            
+
+    key = "Alarms"
+    for i in range(16):
+        data_block_Alarm[0][i] = 1 if (data.get(key, 0) & (1 << i)) > 0  else 0            
+
+
+
+    for i in range(3):        # 
+        key = f"AI{i}"
+        data_block_AI[0][i] = data.get(key, 0)                    
+
+    for i in range(3):        # 
+        key = f"AO{i}"
+        data_block_AO[0][i] = data.get(key, 0)
+                
+    # Имена строк и столбцов
+    row_labels = [f"0x{i*0x10:02X}" for i in range(8)]       # 0x00, 0x10, ... 0x70
+    col_labels = [f"0x{j:02X}" for j in range(16)]           # 0x00, 0x01, ... 0x0F
+
+    # Имена строк и столбцов
+    row_labels_1 = [f"0x{i*0x10:02X}" for i in range(1)]       # 0x00, 0x10, ... 0x70
+    col_labels_16 = [f"0x{j:02X}" for j in range(16)]           # 0x00, 0x01, ... 0x0F
+            
+    # --- Функция "зебра" ---
+    def zebra_style(row):
+        """Простое чередование цветов строк"""
+        # если индекс в hex, пробуем перевести в число
+        try:
+            idx = int(str(row.name), 16)
+        except ValueError:
+            idx = row.name if isinstance(row.name, int) else 0
+
+        color = "#f9f9f9" if (idx // 0x10) % 2 == 0 else "white"
+        return [f"background-color: {color}"] * len(row)
+
+    # --- Функция "зебра" ---
+    def zebra_style_1(row):
+        """Простое чередование цветов строк"""
+        # если индекс в hex, пробуем перевести в число
+        try:
+            idx = int(str(row.name), 16)
+        except ValueError:
+            idx = row.name if isinstance(row.name, int) else 0
+
+        color = "#f9f9f9" if (idx // 0x10) % 2 == 0 else "white"
+        return [f"background-color: {color}"] * len(row)
+
+
+    # Создаём DataFrame для каждой таблицы
+    df1 = pd.DataFrame(data_block_1, index=row_labels, columns=col_labels)
+    df2 = pd.DataFrame(data_block_2, index=row_labels, columns=col_labels)
+
+    df_DI = pd.DataFrame(data_block_DI, index=row_labels_1, columns=col_labels_16)
+    df_DO = pd.DataFrame(data_block_DO, index=row_labels_1, columns=col_labels_16)
+    df_Alarm = pd.DataFrame(data_block_Alarm, index=row_labels_1, columns=col_labels_16)            
+
+    df_AO = pd.DataFrame(data_block_AO, index=row_labels_1, columns=col_labels_16)
+    df_AI = pd.DataFrame(data_block_AI, index=row_labels_1, columns=col_labels_16)
+            
+    # Применяем стиль
+    styled_df1 = (
+        df1.style
+        .apply(zebra_style, axis=1)
+        .format("{:5d}")  # формат чисел
+    )
+
+    # Применяем стиль
+    styled_df2 = (
+        df2.style
+        .apply(zebra_style, axis=1)
+        .format("{:5d}")  # формат чисел
+    )
+
+    # Применяем стиль
+    styled_df_DO = (
+        df_DO.style
+        .apply(zebra_style_1, axis=1)
+        .format("{:5d}")  # формат чисел
+    )            
+
+    # Применяем стиль
+    styled_df_DI = (
+        df_DI.style
+        .apply(zebra_style_1, axis=1)
+        .format("{:5d}")  # формат чисел
+    )
+
+    # Применяем стиль
+    styled_df_Alarm = (
+        df_Alarm.style
+        .apply(zebra_style_1, axis=1)
+        .format("{:5d}")  # формат чисел
+    )
+            
+    # Применяем стиль
+    styled_df_AO = (
+        df_AO.style
+        .apply(zebra_style_1, axis=1)
+        .format("{:5d}")  # формат чисел
+    )            
+
+    styled_df_AI = (
+        df_AI.style
+        .apply(zebra_style_1, axis=1)
+        .format("{:5d}")  # формат чисел
+    )
+            
+    # Две колонки в Streamlit для вывода таблиц
+    col1, col2 = st.columns(2)
+
+with col1:
+    st.subheader("Registers")
+    st.dataframe(styled_df1, height=350, use_container_width=True)
+    st.subheader("Analog Out")
+    st.dataframe(styled_df_AO, use_container_width=True)
+    st.subheader("Analog In")
+    st.dataframe(styled_df_AI, use_container_width=True)
+            
+with col2:
+    st.subheader("Coils")
+    st.dataframe(styled_df2, height=350, use_container_width=True)
+    st.subheader("DO")
+    st.dataframe(styled_df_DO, use_container_width=True)
+    st.subheader("DI")
+    st.dataframe(styled_df_DI, use_container_width=True)            
+    st.subheader("Alarms")
+    st.dataframe(styled_df_Alarm, use_container_width=True)        
+##            columns_to_show = ["time", "fan", "air_damper", "TEN", "T1", "T2", "T3", "co2"]
+##
+##            # выводим только эти
+##            st.dataframe(df[columns_to_show].tail(20), use_container_width=True)
+
+#--------------------------------------------------------------------
 time.sleep(4)
 st.rerun()
 #st.experimental_set_query_params(refresh=time.time())
