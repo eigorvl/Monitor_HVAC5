@@ -116,7 +116,8 @@ conn.commit()
 # init
 ########################################################################
 if "data" not in st.session_state:
-    st.session_state.data = None
+#    st.session_state.data = None
+    st.session_state.data = {}
 if "history" not in st.session_state:
     st.session_state.history = []
 # 👉 ВАЖНО: берём отсюда
@@ -429,7 +430,7 @@ with tab6:
 # ---- Вкладка xx: Regs ----
 with tab7:
     # базовый график температур
-    print(df.dtypes)
+    #print(df.dtypes)
 
     # Пример: два массива по 128 значений (по 16×8) random
     data_block_1 = np.random.randint(0, 65535, size=(8, 16))
