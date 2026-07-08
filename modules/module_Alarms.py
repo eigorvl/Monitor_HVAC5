@@ -20,17 +20,53 @@ ALARMS = [
         "level": "LOW"
     },
     {
-        "id": "FAN_FAIL",
-        "name": "Вентилятор не работает",
-        "check": lambda d: d.get("n1", 0) < 95,
+        "id": "ALARM",
+        "name": "Общая авария",
+        "check": lambda d: d.get("Alarms", 0) & 0x01,
         "level": "CRITICAL"
     },
     {
-        "id": "ALARM",
-        "name": "Общая авария",
-        "check": lambda d: d.get("Alarms", 0) != 0,
+        "id": "n1_FAIL",
+        "name": "Вентилятор П1 авария",
+        "check": lambda d: d.get("Alarms", 0) & 0x02,
         "level": "CRITICAL"
-    }
+    },
+    {
+        "id": "B1_FAIL",
+        "name": "Вентилятор B1 авария",
+        "check": lambda d: d.get("Alarms", 0) & 0x04,
+        "level": "CRITICAL"
+    },    
+    {
+        "id": "RECUPERATOR_FREEZE",
+        "name": "Рекуператор замерз!",
+        "check": lambda d: d.get("Alarms", 0) & 0x08,
+        "level": "CRITICAL"
+    },    
+    {
+        "id": "WARNING_FREEZE",
+        "name": "Угроза заморозки рекуператора!",
+        "check": lambda d: d.get("Alarms", 0) & 0x10,
+        "level": "HIGH"
+    },    
+    {
+        "id": "Y1_ALARM",
+        "name": "Ошибка привода Y1",
+        "check": lambda d: d.get("Alarms", 0) & 0x20,
+        "level": "HIGH"
+    },
+    {
+        "id": "Y4_ALARM",
+        "name": "Ошибка привода Y4",
+        "check": lambda d: d.get("Alarms", 0) & 0x40,
+        "level": "HIGH"
+    },    
+    {
+        "id": "MODBUS_FAULT",
+        "name": "Ошибка датчика Modbus",
+        "check": lambda d: d.get("Alarms", 0) & 0x100,
+        "level": "HIGH"
+    }    
 ]
 
 ########################################
