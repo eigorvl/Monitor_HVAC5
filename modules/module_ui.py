@@ -119,7 +119,7 @@ def draw_hvac(data):
     
     # ===== ПРАВАЯ ПАНЕЛЬ (МНЕМОСХЕМА) =====
     with col_right:
-        st.subheader("📊 Состояние системы")
+        st.subheader("Состояние системы")
 
         if data:
             T1 = round(data.get("T1", 22.0))
@@ -138,20 +138,24 @@ def draw_hvac(data):
             
             Alarm_General = data.get("Alarms", 0) & 0x01 # общая авария
             fan_n1_Alarm = data.get("Alarms", 0) & 0x02   # Авария вентилятора 
-            fan_B1_Alarm = data.get("Alarms", 0) & 0x04 
-            Y4_Alarm = data.get("Alarms", 0) & 0x40    # вария клапана Y4 air_bypass
+            fan_B1_Alarm = data.get("Alarms", 0) & 0x04
+            Recuperator_Alarm = data.get("Alarms", 0) & 0x08  # Рекуператор замерз
+            Y1_Alarm = data.get("Alarms", 0) & 0x20    # вария клапана Y4 air_bypass
+            Y4_Alarm = data.get("Alarms", 0) & 0x40    # вария клапана Y4 air_bypass         
 
             fan_img = module_assets.fan_300x300_base64
             filter_img = module_assets.filter_Bad_pic_base64 if nB_filter else module_assets.filter_Ok_pic_base64
-            Y1_img = module_assets.Y_air_On_pic_base64 if Y1 else module_assets.Y_air_Off_pic_base64
+            Y1_img_On_Off = module_assets.Y_air_On_pic_base64 if Y1 else module_assets.Y_air_Off_pic_base64
+            Y1_img        = module_assets.Y_air_Alarm_pic_base64 if Y1_Alarm else Y1_img_On_Off
             Y2_img = module_assets.Y_air_On_pic_base64 if Y2 else module_assets.Y_air_Off_pic_base64
             Y4_img = module_assets.Y_air_bypass_Alarm_pic_base64 if Y4_Alarm else module_assets.Y_air_bypass_Ok_pic_base64
 
             fan_n1_img = module_assets.fan_Alarm_base64 if fan_n1_Alarm else module_assets.fan_Norm_base64
             fan_B1_img = module_assets.fan_Alarm_base64 if fan_B1_Alarm else module_assets.fan_Norm_base64
+            Recuperator_img = module_assets.Recuperator_Alarm_pic_base64 if Recuperator_Alarm else module_assets.Recuperator_pic_base64
 
+            
             Alarm_General_txt = "Ошибка !" if Alarm_General else "        "
-
             
             animation_n1 = "rotate 4s linear infinite" if fan_n1 else "none"
             animation_B1 = "rotate 4s linear infinite" if fan_B1 else "none"
@@ -215,6 +219,13 @@ def draw_hvac(data):
                     width:170px;
                     animation: {animation_B1};
                 '>                
+                <!-- Рекуператор Авария/Норма -->
+                <img src='data:image/png;base64,{Recuperator_img}' style='
+                    position: absolute;
+                    top: 57px;
+                    left: 173px;
+                    width: 184px;
+                '>    
                 <!-- Клапан Y1 -->
                 <img src='data:image/png;base64,{Y1_img}' style='
                     position: absolute;

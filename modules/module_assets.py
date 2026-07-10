@@ -48,3 +48,12 @@ Y_air_bypass_Ok_pic_base64 = img_to_base64(
 Y_air_bypass_Alarm_pic_base64 = img_to_base64(
     "assets/Y_air_bypass_Alarm_35_91.png"
 )
+Y_air_Alarm_pic_base64 = img_to_base64(
+    "assets/Y_air_Alarm_37_170.png"
+)
+Recuperator_pic_base64 = img_to_base64(
+    "assets/Recuperator_184x340.png"
+)
+Recuperator_Alarm_pic_base64 = img_to_base64(
+    "assets/Recuperator_Alarm_184x340.png"
+)
