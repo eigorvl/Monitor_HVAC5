@@ -196,10 +196,10 @@ while not data_queue.empty():
    
 
 # --- дальше UI ---
-st.title("HVAC Monitor")
+st.title("HVAC5 Monitor")
 
 
-tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["📊 Мнемосхема", "История", "📋 Таблица", "🌡 Графики", "Текущие Аварии", "🚨 Журнал Аварий", "Регистры"])
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["Мнемосхема", "📈 История", "📋 Таблица", "📊 Графики", "Текущие Аварии", "🚨 Журнал Аварий", "Регистры"])
 
 # ---- Вкладка 1 ----
 with tab1:
@@ -313,7 +313,7 @@ with tab3:
 # ---- Вкладка 4 ----
 with tab4:
 
-    st.subheader("📈 Температуры")
+    st.subheader("Температуры")
 
     if history:
         df = pd.DataFrame(history)
@@ -336,7 +336,7 @@ with tab4:
 
         st.altair_chart(chart, use_container_width=True)
 
-        st.subheader("🌀 Вентиляторы и клапаны")
+        st.subheader("Вентиляторы и клапаны")
         df_plot = df.melt("time", value_vars=["Y1", "Y2", "n1", "B1", "air_bypass", "TEN"],
                           var_name="sensor", value_name="value")
 
