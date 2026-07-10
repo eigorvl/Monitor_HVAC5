@@ -6,91 +6,116 @@ import streamlit as st
 from modules import module_assets
 from modules import module_udp
 
+mode_list = ["Ручной", "Лето", "Переходный", "Зима"]
+
 def draw_hvac(data):
     col_left, col_right = st.columns([1, 2])
 
     # ===== ЛЕВАЯ ПАНЕЛЬ (УПРАВЛЕНИЕ) =====
     with col_left:
 
-        
         st.subheader("Управление")
 
-        temp_setpoint = st.number_input("Уставка", value=22)
-        mode = st.selectbox("Режим", ["HEAT", "FAN", "COOL"])
+        col1, col2 = st.columns([3,1])
 
-        enabled = st.toggle("Ручной режим")
-        temp = st.slider("Температура", 18, 40, 22)
+        with col1:
+            #st.subheader("Уставка:")
+            st.markdown(f"<span style = 'font-size: 20px; color: black; font-weight: bold;'>Уставка [°C]:</span>",unsafe_allow_html = True)
+            st.markdown(f"<span style = 'font-size: 20px; color: black; font-weight: bold;'>Режим:</span>",unsafe_allow_html = True)
+            st.markdown(f"<span style = 'font-size: 20px; color: black; font-weight: bold;'>Объем помещения [M^3]:</span>",unsafe_allow_html = True)
+            st.markdown(f"<span style = 'font-size: 20px; color: black; font-weight: bold;'>Избыток тепла [кВт]:</span>",unsafe_allow_html = True)
+            st.markdown(f"<span style = 'font-size: 20px; color: black; font-weight: bold;'>Расходуемая мощность [кВт]:</span>",unsafe_allow_html = True)
+            st.markdown(f"<span style = 'font-size: 20px; color: black; font-weight: bold;'>Суммарная энергия поданая через теплобменник [кДж]:</span>",unsafe_allow_html = True)
+        with col2:
+            if not data:
+                st.info("Жду данные ...")
+            else:
+                T_SP = data.get("T_SP", None)
+                mode = data.get("mode", None)
+                V_room = data.get("V_room", None)
+                Heat_excess = data.get("Heat_excess", None)
+                W = data.get("W", None)/1000
+                Q_Summ = data.get("Q_Summ", None)/1000
+                st.markdown(f"<span style = 'font-size: 20px; color: blue; font-weight: bold;'>{T_SP}</span>",unsafe_allow_html = True)
+                st.markdown(f"<span style = 'font-size: 20px; color: black; color: blue; font-weight: bold;'>{mode_list[mode]}</span>",unsafe_allow_html = True)
+                st.markdown(f"<span style = 'font-size: 20px; color: black; color: blue; font-weight: bold;'>{V_room}</span>",unsafe_allow_html = True)
+                st.markdown(f"<span style = 'font-size: 20px; color: black; color: blue; font-weight: bold;'>{Heat_excess}</span>",unsafe_allow_html = True)
+                st.markdown(f"<span style = 'font-size: 20px; color: black; color: blue; font-weight: bold;'>{W}</span>",unsafe_allow_html = True)
+                st.markdown(f"<span style = 'font-size: 20px; color: black; color: blue; font-weight: bold;'>{Q_Summ}</span>",unsafe_allow_html = True)
 
-        progress = st.progress(70)
-
-        st.metric("Температура", "22 °C", "+1.2")
+        
+##        temp_setpoint = st.number_input("Уставка", value=22)
+##        mode = st.selectbox("Режим", ["HEAT", "FAN", "COOL"])
+##
+##        enabled = st.toggle("Ручной режим")
+##        temp = st.slider("Температура", 18, 40, 22)
+##
+##        progress = st.progress(70)
+##
+##        st.metric("Температура", "22 °C", "+1.2")
         
         data = st.session_state.data
-        if not data:
-            st.info("Жду данные ...")
-        else:
-            T1 = data.get("T1", None)
-            st.write("T1 сейчас:", T1)            
+         
     
 
-        if st.session_state.active_alarms:
-            st.error("🚨 Есть аварии")
-        else:
-            st.success("✅ Всё нормально")
-
-        for alarm in st.session_state.active_alarms:
-            st.warning(f"{alarm['name']}")        
+##        if st.session_state.active_alarms:
+##            st.error("🚨 Есть аварии")
+##        else:
+##            st.success("✅ Всё нормально")
+##
+##        for alarm in st.session_state.active_alarms:
+##            st.warning(f"{alarm['name']}")        
         
 
-        col_btn1, col_ind1, col_btn2, col_ind2 = st.columns([4,1,4,1])
-
-
-        color1 = "green"
-
-        
-        with col_btn1:
-            
-            if st.button("▶ Пуск",key="btn_start", type="secondary", use_container_width=True):
-                st.session_state.running = True
-                module_udp.send_udp({
-                    "temp_setpoint": temp_setpoint,
-                    "mode": mode
-                })
-
-            st.markdown("</div>", unsafe_allow_html=True)
-
-        with col_ind1:
-            
-
-            st.markdown(f"""
-            <div style='
-                width:20px;
-                height:20px;
-                background:{color1};
-                border-radius:50%;
-                margin-top:10px;
-            '></div>
-            """, unsafe_allow_html=True)
-            
-        with col_btn2:
-            if st.button("⏹ Стоп", key="btn_stop",type="secondary", use_container_width=True):
-                module_udp.send_udp({
-                    "temp_setpoint": temp_setpoint,
-                    "mode": mode
-                })
-                
-        with col_ind2:
-            color2 = "red" 
-
-            st.markdown(f"""
-            <div style='
-                width:20px;
-                height:20px;
-                background:{color2};
-                border-radius:50%;
-                margin-top:10px;
-            '></div>
-            """, unsafe_allow_html=True)
+##        col_btn1, col_ind1, col_btn2, col_ind2 = st.columns([4,1,4,1])
+##
+##
+##        color1 = "green"
+##
+##        
+##        with col_btn1:
+##            
+##            if st.button("▶ Пуск",key="btn_start", type="secondary", use_container_width=True):
+##                st.session_state.running = True
+##                module_udp.send_udp({
+##                    "temp_setpoint": temp_setpoint,
+##                    "mode": mode
+##                })
+##
+##            st.markdown("</div>", unsafe_allow_html=True)
+##
+##        with col_ind1:
+##            
+##
+##            st.markdown(f"""
+##            <div style='
+##                width:20px;
+##                height:20px;
+##                background:{color1};
+##                border-radius:50%;
+##                margin-top:10px;
+##            '></div>
+##            """, unsafe_allow_html=True)
+##            
+##        with col_btn2:
+##            if st.button("⏹ Стоп", key="btn_stop",type="secondary", use_container_width=True):
+##                module_udp.send_udp({
+##                    "temp_setpoint": temp_setpoint,
+##                    "mode": mode
+##                })
+##                
+##        with col_ind2:
+##            color2 = "red" 
+##
+##            st.markdown(f"""
+##            <div style='
+##                width:20px;
+##                height:20px;
+##                background:{color2};
+##                border-radius:50%;
+##                margin-top:10px;
+##            '></div>
+##            """, unsafe_allow_html=True)
     
     # ===== ПРАВАЯ ПАНЕЛЬ (МНЕМОСХЕМА) =====
     with col_right:
@@ -154,6 +179,16 @@ def draw_hvac(data):
                     left: 356px;
                     width: 168px;
                 '>       
+                <div style='
+                    position: absolute;
+                    top: 25px;
+                    left: 430px;
+                    color: gray;
+                    font-size: 20px;
+                    font-weight: bold;
+                '>
+                    B1
+                </div>
                 <!-- ВЕНТИЛЯТОР ПРИТОКА АНИМАЦИЯ -->
                 <img src='data:image/png;base64,{fan_img}' style='
                     position:absolute;
@@ -162,6 +197,16 @@ def draw_hvac(data):
                     width:170px;
                     animation: {animation_n1};
                 '>
+                <div style='
+                    position: absolute;
+                    top: 392px;
+                    left: 430px;
+                    color: gray;
+                    font-size: 20px;
+                    font-weight: bold;
+                '>
+                    П1
+                </div>
                 <!-- ВЕНТИЛЯТОР ВЫТЯЖКИ АНИМАЦИЯ -->
                 <img src='data:image/png;base64,{fan_img}' style='
                     position:absolute;
@@ -177,6 +222,16 @@ def draw_hvac(data):
                     left: 105px;
                     width: 37px;
                 '>
+                <div style='
+                    position: absolute;
+                    top: 25px;
+                    left: 105px;
+                    color: gray;
+                    font-size: 20px;
+                    font-weight: bold;
+                '>
+                    Y1
+                </div>
                 <!-- Клапан Y2 -->
                 <img src='data:image/png;base64,{Y2_img}' style='
                     position: absolute;
@@ -184,6 +239,16 @@ def draw_hvac(data):
                     left: 105px;
                     width: 37px;
                 '>                
+                <div style='
+                    position: absolute;
+                    top: 392px;
+                    left: 105px;
+                    color: gray;
+                    font-size: 20px;
+                    font-weight: bold;
+                '>
+                    Y2
+                </div>
                 <!-- Клапан Y4 air_bypass -->
                 <img src='data:image/png;base64,{Y4_img}' style='
                     position: absolute;
@@ -215,6 +280,16 @@ def draw_hvac(data):
                 '>
                     {T1} °C
                 </div>
+                <div style='
+                    position: absolute;
+                    top: 392px;
+                    left: 280px;
+                    color: gray;
+                    font-size: 20px;
+                    font-weight: bold;
+                '>
+                    T1
+                </div>
                 <!-- ТЕМПЕРАТУРА T2-->
                 <div style='
                     position: absolute;
@@ -225,6 +300,16 @@ def draw_hvac(data):
                     font-weight: bold;
                 '>
                     {T2} °C
+                </div>
+                <div style='
+                    position: absolute;
+                    top: 330px;
+                    left: 797px;
+                    color: gray;
+                    font-size: 20px;
+                    font-weight: bold;
+                '>
+                    T2
                 </div>
                 <!-- ТЕМПЕРАТУРА T3-->
                 <div style='
@@ -237,6 +322,16 @@ def draw_hvac(data):
                 '>
                     {T3} °C
                 </div>                
+                <div style='
+                    position: absolute;
+                    top: 160px;
+                    left: 797px;
+                    color: gray;
+                    font-size: 20px;
+                    font-weight: bold;
+                '>
+                    T3
+                </div>
                 <!-- ТЕМПЕРАТУРА T4-->
                 <div style='
                     position: absolute;
@@ -248,10 +343,20 @@ def draw_hvac(data):
                 '>
                     {T4} °C
                 </div>
+                <div style='
+                    position: absolute;
+                    top: 392px;
+                    left: 200px;
+                    color: gray;
+                    font-size: 20px;
+                    font-weight: bold;
+                '>
+                    T4
+                </div>
                 <!-- ТЕМПЕРАТУРА T5-->
                 <div style='
                     position: absolute;
-                    top: 20px;
+                    top: 25px;
                     left: 10px;
                     color: blue;
                     font-size: 20px;
@@ -259,6 +364,16 @@ def draw_hvac(data):
                 '>
                     {T5} °C
                 </div>                
+                <div style='
+                    position: absolute;
+                    top: 0px;
+                    left: 10px;
+                    color: gray;
+                    font-size: 20px;
+                    font-weight: bold;
+                '>
+                    T5
+                </div>
                 <!-- Y3 ТЭН -->
                 <div style='
                     position: absolute;
@@ -270,10 +385,20 @@ def draw_hvac(data):
                 '>
                     {Y3} %
                 </div>        
+                <div style='
+                    position: absolute;
+                    top: 392px;
+                    left: 630px;
+                    color: gray;
+                    font-size: 20px;
+                    font-weight: bold;
+                '>
+                    ТЭН
+                </div>
                 <!-- Y4 air_bypass -->
                 <div style='
                     position: absolute;
-                    top: 20px;
+                    top: 25px;
                     left: 240px;
                     color: green;
                     font-size: 20px;
@@ -281,6 +406,16 @@ def draw_hvac(data):
                 '>
                    {Y4} %
                 </div>        
+                <div style='
+                    position: absolute;
+                    top: 0px;
+                    left: 240px;
+                    color: gray;
+                    font-size: 20px;
+                    font-weight: bold;
+                '>
+                    Y4
+                </div>
                 <!-- ИНДИКАТОР П1-->
                 <div style='
                     position:absolute;
@@ -314,7 +449,7 @@ def draw_hvac(data):
                 <!-- ОБЩАЯ ОШИБКА! -->
                 <div style='
                     position: absolute;
-                    top: 10px;
+                    top: 0px;
                     left: 380px;
                     color: red;
                     font-size: 20px;
